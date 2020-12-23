@@ -16,7 +16,7 @@ public class EmergencyRepositoryImplementation implements EmergencyRepository{
     @Override
     public List<Emergency> getAllEmergency() {
         try(Connection conn = sql2o.open()) {
-            return conn.createQuery("SELECT * FROM emergencia").executeAndFetch(Emergency.class);
+            return conn.createQuery("SELECT id,nombre,descrip,finicio,ffin,id_institucion,id_estado,st_x(st_astext( ubicacion)) AS longitude, st_y(st_astext(ubicacion)) AS latitude FROM emergencia").executeAndFetch(Emergency.class);
         }
         catch (Exception e)
         {
@@ -28,9 +28,10 @@ public class EmergencyRepositoryImplementation implements EmergencyRepository{
     @Override
     public Emergency createEmergency(Emergency emergency) {
         int idMax = 0;
+        final String point = "POINT("+emergency.getLongitude()+" "+emergency.getLatitude()+")";
         try(Connection conn =sql2o.open()) {
             idMax = conn.createQuery("SELECT CASE WHEN MAX(id) IS NULL THEN 0 ELSE MAX(id) END FROM emergencia").executeScalar(Integer.class)+1;
-            conn.createQuery("INSERT INTO emergencia(id,nombre,descrip,finicio,ffin,id_institucion,id_estado) " + "VALUES (:id,:nombre,:descrip,:finicio,:ffin,:id_institucion,:id_estado)")
+            conn.createQuery("INSERT INTO emergencia(id,nombre,descrip,finicio,ffin,id_institucion,id_estado,ubicacion) " + "VALUES (:id,:nombre,:descrip,:finicio,:ffin,:id_institucion,:id_estado,ST_GeomFromText(:point, 4326))")
                     .addParameter("id",idMax)
                     .addParameter("nombre",emergency.getNombre())
                     .addParameter("descrip",emergency.getDescrip())
@@ -38,6 +39,7 @@ public class EmergencyRepositoryImplementation implements EmergencyRepository{
                     .addParameter("ffin",emergency.getFfin())
                     .addParameter("id_institucion",emergency.getId_institucion())
                     .addParameter("id_estado",emergency.getId_estado())
+                    .addParameter("point",point)
                     .executeUpdate();
             emergency.setId(idMax);
             return emergency;
@@ -62,7 +64,7 @@ public class EmergencyRepositoryImplementation implements EmergencyRepository{
 
     @Override
     public Emergency getEmergencyById(Integer id) {
-        final String sql="SELECT * FROM emergencia where id = :id";
+        final String sql="SELECT  id,nombre,descrip,finicio,ffin,id_institucion,id_estado,st_x(st_astext( ubicacion)) AS longitude, st_y(st_astext(ubicacion)) AS latitude  FROM emergencia where id = :id";
         try(Connection conn = sql2o.open()){
             Emergency emergency = conn.createQuery(sql).addParameter("id",id).executeAndFetchFirst(Emergency.class);
             return emergency;
@@ -76,7 +78,8 @@ public class EmergencyRepositoryImplementation implements EmergencyRepository{
 
     @Override
     public Emergency updateEmergencyById(Integer id, Emergency emergency) {
-        final String sql = "UPDATE emergencia SET nombre = :nombre,descrip = :descrip,finicio = :finicio,ffin = :ffin,id_institucion = :id_institucion, id_estado = :id_estado WHERE id = :id ";
+        final String sql = "UPDATE emergencia SET nombre = :nombre,descrip = :descrip,finicio = :finicio,ffin = :ffin,id_institucion = :id_institucion, id_estado = :id_estado, ubicacion= ST_GeomFromText(:point, 4326) WHERE id = :id ";
+        final String point = "POINT("+emergency.getLongitude()+" "+emergency.getLatitude()+")";
         try (Connection conn = sql2o.open()){
             conn.createQuery(sql,true)
                     .addParameter("nombre",emergency.getNombre())
@@ -85,6 +88,7 @@ public class EmergencyRepositoryImplementation implements EmergencyRepository{
                     .addParameter("ffin",emergency.getFfin())
                     .addParameter("id_institucion",emergency.getId_institucion())
                     .addParameter("id_estado",emergency.getId_estado())
+                    .addParameter("point",point)
                     .addParameter("id",id)
                     .executeUpdate();
             emergency.setId(id);

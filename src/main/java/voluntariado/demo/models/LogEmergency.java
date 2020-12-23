@@ -1,14 +1,15 @@
 package voluntariado.demo.models;
 
+import java.sql.Date;
 import java.sql.Timestamp;
-import java.time.format.DateTimeFormatter;
+
 
 public class LogEmergency {
     private Integer id;
     private Integer id_emergencia;
     private String emergencia;
     private String estado;
-    private Timestamp fecha_de_creacion;
+    private Date fecha_de_creacion;
     private String descrip;
 
     public Integer getId() {
@@ -43,11 +44,11 @@ public class LogEmergency {
         this.estado = estado;
     }
 
-    public Timestamp getFecha_de_creacion() {
+    public Date getFecha_de_creacion() {
         return fecha_de_creacion;
     }
 
-    public void setFecha_de_creacion(Timestamp fecha_de_creacion) {
+    public void setFecha_de_creacion(Date fecha_de_creacion) {
         this.fecha_de_creacion = fecha_de_creacion;
     }
 

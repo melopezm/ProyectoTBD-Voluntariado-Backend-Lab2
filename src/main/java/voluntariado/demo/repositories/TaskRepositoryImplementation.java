@@ -17,7 +17,8 @@ public class TaskRepositoryImplementation implements TaskRepository {
     public Task createTask(Task task) {
         final String sql1 = "SELECT CASE WHEN MAX(id) IS NULL THEN 0 ELSE MAX(id) END FROM tarea";
         final String sql = "INSERT INTO tarea(id,nombre,descrip,cant_vol_requeridos,cant_vol_inscritos,id_emergencia" +
-                ",finicio,ffin,id_estado) VALUES(:id,:n,:d,:car,:cai,:ide,:fi,:ff,:ie)";
+                ",finicio,ffin,id_estado,ubicacion) VALUES(:id,:n,:d,:car,:cai,:ide,:fi,:ff,:ie,ST_GeomFromText(:point, 4326))";
+        final String point = "POINT("+task.getLongitude()+" "+task.getLatitude()+")";
         try(Connection conn =sql2o.open()){
             int idMax = conn.createQuery(sql1).executeScalar(Integer.class)+1;
             conn.createQuery(sql)
@@ -30,6 +31,7 @@ public class TaskRepositoryImplementation implements TaskRepository {
                     .addParameter("fi",task.getFinicio())
                     .addParameter("ff",task.getFfin())
                     .addParameter("ie",0)
+                    .addParameter("point",point)
                     .executeUpdate();
             task.setId(idMax);
             task.setCant_vol_inscritos(0);
@@ -44,7 +46,10 @@ public class TaskRepositoryImplementation implements TaskRepository {
 
     @Override
     public List<Task> getAllTask() {
-        final String sql="SELECT * FROM tarea";
+        final String sql="SELECT id,nombre,descrip,cant_vol_requeridos," +
+                "cant_vol_inscritos,id_emergencia,finicio,ffin," +
+                "id_estado,st_x(st_astext( ubicacion)) AS " +
+                "longitude, st_y(st_astext(ubicacion)) AS latitude FROM tarea";
         try(Connection conn = sql2o.open()){
             return conn.createQuery(sql).executeAndFetch(Task.class);
         }
@@ -56,7 +61,10 @@ public class TaskRepositoryImplementation implements TaskRepository {
 
     @Override
     public Task getTaskById(Integer id) {
-        final String sql = "SELECT * FROM tarea WHERE id = :id";
+        final String sql = "SELECT id,nombre,descrip,cant_vol_requeridos," +
+                "cant_vol_inscritos,id_emergencia,finicio,ffin," +
+                "id_estado,st_x(st_astext( ubicacion)) AS " +
+                "longitude, st_y(st_astext(ubicacion)) AS latitude FROM tarea WHERE id = :id";
         try(Connection conn = sql2o.open()) {
             Task task = conn.createQuery(sql)
                     .addParameter("id",id)
@@ -74,7 +82,8 @@ public class TaskRepositoryImplementation implements TaskRepository {
         final String sql = "UPDATE tarea SET nombre = :n," +
                 "descrip = :d, cant_vol_requeridos = :car, " +
                 "cant_vol_inscritos =:cai, id_emergencia = :ie," +
-                "finicio = :fi, ffin = :ff,id_estado = :ide WHERE id = :id";
+                "finicio = :fi, ffin = :ff,id_estado = :ide, ubicacion = ST_GeomFromText(:point, 4326) WHERE id = :id";
+        final String point = "POINT("+task.getLongitude()+" "+task.getLatitude()+")";
         try(Connection conn = sql2o.open()){
             conn.createQuery(sql)
                     .addParameter("n",task.getNombre())
@@ -85,6 +94,7 @@ public class TaskRepositoryImplementation implements TaskRepository {
                     .addParameter("fi",task.getFfin())
                     .addParameter("ff",task.getFfin())
                     .addParameter("ide",task.getId_estado())
+                    .addParameter("point",point)
                     .addParameter("id",id)
                     .executeUpdate();
             task.setId(id);

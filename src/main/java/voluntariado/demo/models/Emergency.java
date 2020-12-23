@@ -11,6 +11,8 @@ public class Emergency {
     private Date ffin;
     private Integer id_institucion;
     private Integer id_estado;
+    private double longitude;
+    private double latitude;
 
     public Integer getId_estado() {
         return id_estado;
@@ -66,5 +68,21 @@ public class Emergency {
 
     public void setId_institucion(Integer id_institucion) {
         this.id_institucion = id_institucion;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
     }
 }
