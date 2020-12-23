@@ -7,7 +7,7 @@ import java.sql.Timestamp;
 public class LogTask {
     private Integer id;
     private Integer id_tarea;
-    private String tarea;
+    private String nombre;
     private String estado;
     private Date fecha_de_creacion;
     private String descrip;
@@ -28,12 +28,12 @@ public class LogTask {
         this.id_tarea = id_tarea;
     }
 
-    public String getTarea() {
-        return tarea;
+    public String getNombre() {
+        return nombre;
     }
 
-    public void setTarea(String tarea) {
-        this.tarea = tarea;
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
 
     public String getEstado() {

@@ -7,7 +7,7 @@ import java.sql.Timestamp;
 public class LogEmergency {
     private Integer id;
     private Integer id_emergencia;
-    private String emergencia;
+    private String nombre;
     private String estado;
     private Date fecha_de_creacion;
     private String descrip;
@@ -28,12 +28,12 @@ public class LogEmergency {
         this.id_emergencia = id_emergencia;
     }
 
-    public String getEmergencia() {
-        return emergencia;
+    public String getNombre() {
+        return nombre;
     }
 
-    public void setEmergencia(String emergencia) {
-        this.emergencia = emergencia;
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
 
     public String getEstado() {
